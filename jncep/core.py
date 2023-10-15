@@ -28,6 +28,7 @@ EpubGenerationOptions = namedtuple(
     [
         "output_dirpath",
         "is_by_volume",
+        "is_by_subfolder",
         "is_extract_images",
         "is_extract_content",
         "is_not_replace_chars",
@@ -221,6 +222,7 @@ def _process_single_epub_content(series, volumes, parts):
 
     contents = [part.epub_content for part in parts]
 
+    is_complete = False
     if len(parts) == 1:
         # single part
         part = parts[0]
@@ -289,14 +291,15 @@ def _process_single_epub_content(series, volumes, parts):
             is_complete = _is_volume_complete(volume, parts)
             if is_complete:
                 part_segment = "Complete"
+                title = f"{title_base}"
             else:
                 # check the last part in the epub
                 suffix = ""
                 if _is_part_final(parts[-1]):
                     suffix = " - Final"
                 part_segment = f"Parts {part_num0} to {part_num1}{suffix}"
+                title = f"{title_base} [{part_segment}]"
 
-            title = f"{title_base} [{part_segment}]"
             title_segments = Addict(
                 {
                     "series_title": series.raw_data.title,
@@ -321,6 +324,7 @@ def _process_single_epub_content(series, volumes, parts):
         toc,
         contents,
         images,
+        is_complete,
     )
 
     return book_details
